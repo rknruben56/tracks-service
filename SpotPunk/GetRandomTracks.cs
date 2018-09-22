@@ -12,7 +12,7 @@ using System.Web;
 namespace SpotPunk
 {
     /// <summary>
-    /// Calls the Music API and gets a track to play
+    /// Calls the Music API and gets random tracks
     /// </summary>
     public static class GetRandomTracks
     {
