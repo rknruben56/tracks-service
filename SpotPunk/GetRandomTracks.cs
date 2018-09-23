@@ -3,7 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
+using Newtonsoft.Json;
+using SpotPunk.Models;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -19,7 +24,6 @@ namespace SpotPunk
         #region Constants, Variables, and Enums
 
         private static readonly int SearchOffset = 100;
-        private static string[] SearchTerms = { "rock", "blues", "rap", "jazz", "pop", "techno" };
 
         #endregion
 
@@ -105,8 +109,14 @@ namespace SpotPunk
         /// <returns></returns>
         private static string GetSearchTerm()
         {
-            var randomIndex = new Random().Next(0, SearchTerms.Length);
-            return SearchTerms[randomIndex];
+            var searchTerms = new List<string>();
+            using (StreamReader r = new StreamReader("searchTerms.json"))
+            {
+                var json = r.ReadToEnd();                
+                searchTerms = JsonConvert.DeserializeObject<SearchCatalog>(json).SearchTerms.ToList();
+            }
+            var randomIndex = new Random().Next(0, searchTerms.Count);
+            return searchTerms[randomIndex];
         }
 
         #endregion
