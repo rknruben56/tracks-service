@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Extensions.Logging;
+using SpotPunk.DISetup.Injection;
 using SpotPunk.Providers;
 using SpotPunk.Services;
 using System;
@@ -11,13 +12,12 @@ using System.Threading.Tasks;
 namespace SpotPunk
 {
     /// <summary>
-    /// Calls the Music API and gets random tracks
+    /// Calls a Music API and gets random tracks
     /// </summary>
     public static class GetRandomTracks
     {
         #region Constants, Variables, and Enums
 
-        private static readonly int SearchOffset = 100;
         private static readonly int DefaultNumOfTracks = 5;
 
         #endregion
@@ -31,7 +31,11 @@ namespace SpotPunk
         /// <param name="log">logger</param>
         /// <returns></returns>
         [FunctionName("tracks")]
-        public static async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]HttpRequest req, TraceWriter log)
+        public static async Task<IActionResult> RunAsync(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]HttpRequest req, 
+            ILogger log, 
+            [Inject] IMusicService musicService,
+            [Inject] ISearchTermProvider searchTermProvider)
         {
             try
             {
@@ -52,17 +56,18 @@ namespace SpotPunk
                     }
 
                     // Get a random searchTerm
-                    var searchTerm = new SearchTermProvider().GetRandomSearchTerm();
+                    var searchTerm = searchTermProvider.GetRandomSearchTerm();
 
                     // Call the music service for tracks
-                    var tracks = await new SpotifyService().SearchAsync(userToken, searchTerm, searchCount);
+                    var tracks = await musicService.SearchAsync(userToken, searchTerm, searchCount);
 
+                    // Return the tracks JSON
                     return new OkObjectResult(tracks);
                 }
             }
             catch(Exception e)
             {
-                log.Info($"GetTrack - Error getting tracks: {e.Message}");
+                log.LogInformation($"GetTrack - Error getting tracks: {e.Message}");
                 return new BadRequestObjectResult("Oops! You don goofed");
             }
         }

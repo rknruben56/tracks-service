@@ -13,14 +13,6 @@ namespace SpotPunk.Services
 
         #endregion
 
-        #region Constructors
-        
-        /// <summary>
-        /// TODO: Inject HttpClient
-        /// </summary>
-        public SpotifyService() { }
-        #endregion
-
         #region Methods
 
         /// <summary>
@@ -34,7 +26,7 @@ namespace SpotPunk.Services
             var url = GetUrl(searchTerm, limit);
 
             // Set headers
-            var client = new HttpClient();
+            var client = new HttpClient(); // TODO: Inject?
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {userToken}");
 
