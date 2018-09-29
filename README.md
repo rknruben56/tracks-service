@@ -1,2 +1,2 @@
-# azure-functions
-SpotPunk Azure Functions
+# Tracks Service
+Azure Function that returns a random set of tracks currently from Spotify Only
