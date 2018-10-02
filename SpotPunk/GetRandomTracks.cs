@@ -50,7 +50,7 @@ namespace SpotPunk
                 {
                     // Get user's count request if any
                     int searchCount = DefaultNumOfTracks;
-                    if (!string.IsNullOrEmpty(req.Query["count"]))
+                    if (req.Query != null && !string.IsNullOrEmpty(req.Query["count"]))
                     {
                         int.TryParse(req.Query["count"], out searchCount);
                     }
