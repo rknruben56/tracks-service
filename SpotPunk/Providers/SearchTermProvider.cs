@@ -12,8 +12,6 @@ namespace SpotPunk.Providers
     /// </summary>
     public class SearchTermProvider : ISearchTermProvider
     {
-        #region Methods
-
         /// <summary>
         /// Returns a random search term
         /// </summary>
@@ -29,7 +27,5 @@ namespace SpotPunk.Providers
             var randomIndex = new Random().Next(0, searchTerms.Count);
             return searchTerms[randomIndex];
         }
-
-        #endregion
     }
 }

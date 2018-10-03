@@ -7,6 +7,7 @@ using SpotPunk.DISetup.Injection;
 using SpotPunk.Providers;
 using SpotPunk.Services;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace SpotPunk
@@ -16,13 +17,8 @@ namespace SpotPunk
     /// </summary>
     public static class GetRandomTracks
     {
-        #region Constants, Variables, and Enums
 
-        private static readonly int DefaultNumOfTracks = 5;
-
-        #endregion
-
-        #region Methods
+        private static readonly int DefaultNumOfTracks = 5;        
 
         /// <summary>
         /// Azure Function async call
@@ -59,10 +55,17 @@ namespace SpotPunk
                     var searchTerm = searchTermProvider.GetRandomSearchTerm();
 
                     // Call the music service for tracks
-                    var tracks = await musicService.SearchAsync(userToken, searchTerm, searchCount);
+                    var musicServiceResponse = await musicService.SearchAsync(userToken, searchTerm, searchCount);
 
-                    // Return the tracks JSON
-                    return new OkObjectResult(tracks);
+                    if (musicServiceResponse.Item1 == HttpStatusCode.OK)
+                    {
+                        // Return tracks JSON
+                        return new OkObjectResult(musicServiceResponse.Item2);
+                    }
+                    else
+                    {
+                        return new BadRequestObjectResult(musicServiceResponse.Item2);
+                    }
                 }
             }
             catch(Exception e)
@@ -71,7 +74,5 @@ namespace SpotPunk
                 return new BadRequestObjectResult("Oops! You don goofed");
             }
         }
-        
-        #endregion
     }
 }

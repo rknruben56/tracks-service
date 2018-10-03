@@ -5,14 +5,10 @@
     /// </summary>
     public interface ISearchTermProvider
     {
-        #region Methods
-
         /// <summary>
         /// Returns a random search term
         /// </summary>
         /// <returns></returns>
         string GetRandomSearchTerm();
-
-        #endregion
     }
 }

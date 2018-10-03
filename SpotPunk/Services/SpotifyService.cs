@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
@@ -7,20 +8,15 @@ namespace SpotPunk.Services
 {
     public class SpotifyService : IMusicService
     {
-        #region Constants, Enums, and Variables
 
         private static readonly int SearchOffset = 100;
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         /// Searches the Spotify API for random tracks
         /// </summary>
         /// <param name="searchTerm"></param>
-        /// <returns></returns>
-        public async System.Threading.Tasks.Task<string> SearchAsync(string userToken, string searchTerm, int limit)
+        /// <returns>Tuple where Item 1 is the Http Status code and Item 2 is the result JSON</returns>
+        public async System.Threading.Tasks.Task<Tuple<HttpStatusCode, string>> SearchAsync(string userToken, string searchTerm, int limit)
         {
             // Get url with the proper query string
             var url = GetUrl(searchTerm, limit);
@@ -31,8 +27,9 @@ namespace SpotPunk.Services
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {userToken}");
 
             // Call the API and return tracks
-            var tracks = await client.GetStringAsync(url);
-            return tracks;
+            var result = await client.GetAsync(url);
+            var response = await result.Content.ReadAsStringAsync();
+            return Tuple.Create(result.StatusCode, response);
         }
 
         /// <summary>
@@ -68,8 +65,5 @@ namespace SpotPunk.Services
         {
             return Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process);
         }
-
-        #endregion
-
     }
 }

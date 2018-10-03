@@ -12,8 +12,6 @@ namespace SpotPunk.DISetup.Injection
     /// </summary>
     internal class InjectWebJobsExtension : IExtensionConfigProvider
     {
-        #region Methods
-
         public void Initialize(ExtensionConfigContext context)
         {
             var rule = context.AddBindingRule<InjectAttribute>();
@@ -47,7 +45,5 @@ namespace SpotPunk.DISetup.Injection
 
             return configuration;
         }
-
-        #endregion
     }
 }

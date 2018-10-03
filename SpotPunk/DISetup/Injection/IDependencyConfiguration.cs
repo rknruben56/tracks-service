@@ -7,10 +7,6 @@ namespace SpotPunk.DISetup.Injection
     /// </summary>
     public interface IDependencyConfiguration
     {
-        #region Methods
-
         void ConfigureServices(IServiceCollection services);
-        
-        #endregion
     }
 }
