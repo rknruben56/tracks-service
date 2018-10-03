@@ -19,6 +19,33 @@ namespace SpotPunkTest
     public class GetRandomTracksTest
     {
         /// <summary>
+        /// Verifies that a bad request is returned when no user token is received
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task GetRandomTracks_NoTokenReturnsBadRequest_Async()
+        {
+            // Arrange
+            var request = new Mock<HttpRequest>();
+            var logger = new Mock<ILogger>();
+
+            // set music api return string
+            var musicService = new Mock<IMusicService>();
+            musicService.Setup(service => service.SearchAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(Task.FromResult("{}")); // TODO: Add Spotify return JSON
+
+            // set search term
+            var searchTermProvider = new Mock<ISearchTermProvider>();
+            searchTermProvider.Setup(provider => provider.GetRandomSearchTerm()).Returns(It.IsAny<string>());
+
+            // Act
+            var result = await GetRandomTracks.RunAsync(request.Object, logger.Object, musicService.Object, searchTermProvider.Object);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+        }
+
+        /// <summary>
         /// Verifies GetRandomTracks returns a valid response
         /// </summary>
         /// <returns></returns>
