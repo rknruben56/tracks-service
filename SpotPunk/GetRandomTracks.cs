@@ -1,9 +1,9 @@
+using Indigo.Functions.Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using SpotPunk.DISetup.Injection;
 using SpotPunk.Providers;
 using SpotPunk.Services;
 using System;
@@ -24,17 +24,18 @@ namespace SpotPunk
         /// Azure Function async call
         /// </summary>
         /// <param name="req">request object</param>
-        /// <param name="log">logger</param>
+        /// <param name="logger">logger</param>
         /// <returns></returns>
         [FunctionName("tracks")]
         public static async Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]HttpRequest req, 
-            ILogger log, 
+            ILogger logger, 
             [Inject] IMusicService musicService,
             [Inject] ISearchTermProvider searchTermProvider)
         {
             try
             {
+
                 var userToken = req.Headers["token"];
 
                 // Check required parameters
@@ -70,7 +71,7 @@ namespace SpotPunk
             }
             catch(Exception e)
             {
-                log.LogInformation($"GetTrack - Error getting tracks: {e.Message}");
+                logger.LogInformation($"GetTrack - Error getting tracks: {e.Message}");
                 return new BadRequestObjectResult("Oops! You don goofed");
             }
         }
