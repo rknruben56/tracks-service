@@ -1,4 +1,4 @@
-using Indigo.Functions.Autofac;
+using Indigo.Functions.Injection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -53,9 +53,11 @@ namespace SpotPunk
                     }
 
                     // Get a random searchTerm
+                    logger.LogInformation("Getting Random Search Term");
                     var searchTerm = searchTermProvider.GetRandomSearchTerm();
 
                     // Call the music service for tracks
+                    logger.LogInformation("Calling API");
                     var musicServiceResponse = await musicService.SearchAsync(userToken, searchTerm, searchCount);
 
                     if (musicServiceResponse.Item1 == HttpStatusCode.OK)
