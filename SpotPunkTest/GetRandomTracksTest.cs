@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,6 +30,18 @@ namespace SpotPunkTest
 
         #endregion
 
+        private Mock<HttpRequest> _request;
+        private Mock<ILogger> _logger;
+        private Mock<ExecutionContext> _context;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            _request = new Mock<HttpRequest>();
+            _logger = new Mock<ILogger>();
+            _context = new Mock<ExecutionContext>();
+        }
+
         /// <summary>
         /// Verifies that a bad request is returned when no user token is received
         /// </summary>
@@ -37,9 +50,6 @@ namespace SpotPunkTest
         public async Task GetRandomTracks_NoTokenReturnsBadRequest_Async()
         {
             // Arrange
-            var request = new Mock<HttpRequest>();
-            var logger = new Mock<ILogger>();
-
             // set music api return value
             var musicService = new Mock<IMusicService>();
             musicService.Setup(service => service.SearchAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
@@ -47,10 +57,10 @@ namespace SpotPunkTest
 
             // set search term
             var searchTermProvider = new Mock<ISearchTermProvider>();
-            searchTermProvider.Setup(provider => provider.GetRandomSearchTerm()).Returns(It.IsAny<string>());
+            searchTermProvider.Setup(provider => provider.GetRandomSearchTerm(_context.Object)).Returns(It.IsAny<string>());
 
             // Act
-            var result = await GetRandomTracks.RunAsync(request.Object, logger.Object, musicService.Object, searchTermProvider.Object);
+            var result = await GetRandomTracks.RunAsync(_request.Object, _context.Object, _logger.Object, musicService.Object, searchTermProvider.Object);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
@@ -64,15 +74,11 @@ namespace SpotPunkTest
         public async Task GetRandomTracks_SuccessAsync()
         {
             // Arrange
-            var request = new Mock<HttpRequest>();
-            var logger = new Mock<ILogger>();
-
             // set request header
-            request.Setup(req => req.Headers).Returns(new HeaderDictionary(new Dictionary<string, StringValues>()
+            _request.Setup(req => req.Headers).Returns(new HeaderDictionary(new Dictionary<string, StringValues>()
             {
                 ["token"] = UserToken
-            }
-            ));
+            }));
 
             // set music api return value
             var musicService = new Mock<IMusicService>();
@@ -81,10 +87,10 @@ namespace SpotPunkTest
 
             // set search term
             var searchTermProvider = new Mock<ISearchTermProvider>();
-            searchTermProvider.Setup(provider => provider.GetRandomSearchTerm()).Returns(It.IsAny<string>());
+            searchTermProvider.Setup(provider => provider.GetRandomSearchTerm(_context.Object)).Returns(It.IsAny<string>());
 
             // Act
-            var result = await GetRandomTracks.RunAsync(request.Object, logger.Object, musicService.Object, searchTermProvider.Object) as OkObjectResult;
+            var result = await GetRandomTracks.RunAsync(_request.Object, _context.Object, _logger.Object, musicService.Object, searchTermProvider.Object) as OkObjectResult;
 
             // Assert
             Assert.AreEqual(ExampleOutput, result.Value);
@@ -98,15 +104,11 @@ namespace SpotPunkTest
         public async Task GetRandomTracks_MusicAPIErrorBadRequestAsync()
         {
             // Arrange
-            var request = new Mock<HttpRequest>();
-            var logger = new Mock<ILogger>();
-
             // set request header
-            request.Setup(req => req.Headers).Returns(new HeaderDictionary(new Dictionary<string, StringValues>()
+            _request.Setup(req => req.Headers).Returns(new HeaderDictionary(new Dictionary<string, StringValues>()
             {
                 ["token"] = UserToken
-            }
-            ));
+            }));
 
             // set music api return value
             var musicService = new Mock<IMusicService>();
@@ -115,10 +117,10 @@ namespace SpotPunkTest
 
             // set search term
             var searchTermProvider = new Mock<ISearchTermProvider>();
-            searchTermProvider.Setup(provider => provider.GetRandomSearchTerm()).Returns(It.IsAny<string>());
+            searchTermProvider.Setup(provider => provider.GetRandomSearchTerm(_context.Object)).Returns(It.IsAny<string>());
 
             // Act
-            var result = await GetRandomTracks.RunAsync(request.Object, logger.Object, musicService.Object, searchTermProvider.Object) as BadRequestObjectResult;
+            var result = await GetRandomTracks.RunAsync(_request.Object, _context.Object, _logger.Object, musicService.Object, searchTermProvider.Object) as BadRequestObjectResult;
 
             // Assert
             Assert.AreEqual(UnauthorizedOutput, result.Value);

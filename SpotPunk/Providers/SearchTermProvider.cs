@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Azure.WebJobs;
+using Newtonsoft.Json;
 using SpotPunk.Models;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,10 @@ namespace SpotPunk.Providers
         /// Returns a random search term
         /// </summary>
         /// <returns></returns>
-        public string GetRandomSearchTerm()
+        public string GetRandomSearchTerm(ExecutionContext executionContext)
         {
             var searchTerms = new List<string>();
-            using (StreamReader r = new StreamReader("searchTerms.json"))
+            using (StreamReader r = new StreamReader(Path.Combine(executionContext.FunctionAppDirectory, "searchTerms.json")))
             {
                 var json = r.ReadToEnd();
                 searchTerms = JsonConvert.DeserializeObject<SearchCatalog>(json).SearchTerms.ToList();

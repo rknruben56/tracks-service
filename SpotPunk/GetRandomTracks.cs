@@ -29,6 +29,7 @@ namespace SpotPunk
         [FunctionName("tracks")]
         public static async Task<IActionResult> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)]HttpRequest req, 
+            ExecutionContext executionContext,
             ILogger logger, 
             [Inject] IMusicService musicService,
             [Inject] ISearchTermProvider searchTermProvider)
@@ -53,11 +54,9 @@ namespace SpotPunk
                     }
 
                     // Get a random searchTerm
-                    logger.LogInformation("Getting Random Search Term");
-                    var searchTerm = searchTermProvider.GetRandomSearchTerm();
+                    var searchTerm = searchTermProvider.GetRandomSearchTerm(executionContext);
 
                     // Call the music service for tracks
-                    logger.LogInformation("Calling API");
                     var musicServiceResponse = await musicService.SearchAsync(userToken, searchTerm, searchCount);
 
                     if (musicServiceResponse.Item1 == HttpStatusCode.OK)

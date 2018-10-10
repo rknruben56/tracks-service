@@ -38,6 +38,9 @@ bld/
 *.VisualState.xml
 TestResult.xml
 
+#Build Targets
+Directory.Build.targets
+
 # Build Results of an ATL Project
 [Dd]ebugPS/
 [Rr]eleasePS/

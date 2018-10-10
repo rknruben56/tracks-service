@@ -1,4 +1,6 @@
-﻿namespace SpotPunk.Providers
+﻿using Microsoft.Azure.WebJobs;
+
+namespace SpotPunk.Providers
 {
     /// <summary>
     /// Provides the necessary items to perform a search
@@ -9,6 +11,6 @@
         /// Returns a random search term
         /// </summary>
         /// <returns></returns>
-        string GetRandomSearchTerm();
+        string GetRandomSearchTerm(ExecutionContext executionContext);
     }
 }
