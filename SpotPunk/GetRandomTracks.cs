@@ -50,7 +50,10 @@ namespace SpotPunk
                     int searchCount = DefaultNumOfTracks;
                     if (req.Query != null && !string.IsNullOrEmpty(req.Query["count"]))
                     {
-                        int.TryParse(req.Query["count"], out searchCount);
+                        if (int.TryParse(req.Query["count"], out searchCount) && searchCount < 0)
+                        {
+                            return new BadRequestObjectResult("Please enter a valid count.");
+                        }
                     }
 
                     // Get a random searchTerm

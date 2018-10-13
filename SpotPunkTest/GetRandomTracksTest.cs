@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
@@ -124,6 +125,41 @@ namespace SpotPunkTest
 
             // Assert
             Assert.AreEqual(UnauthorizedOutput, result.Value);
+        }
+
+        /// <summary>
+        /// Verifies that a user can only send positive numbers for the count query parameter
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task GetRandomTracks_CountOnlyPositiveIntegers()
+        {
+            // Arrange
+            // set request header
+            _request.Setup(req => req.Headers).Returns(new HeaderDictionary(new Dictionary<string, StringValues>()
+            {
+                ["token"] = UserToken
+            }));
+            // Set query string parameter
+            _request.Setup(req => req.Query).Returns(new QueryCollection(new Dictionary<string, StringValues>()
+            {
+                ["count"] = "-1"
+            }));
+
+            // set music api return value
+            var musicService = new Mock<IMusicService>();
+            musicService.Setup(service => service.SearchAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(Task.FromResult(Tuple.Create(HttpStatusCode.OK, ExampleOutput)));
+
+            // set search term
+            var searchTermProvider = new Mock<ISearchTermProvider>();
+            searchTermProvider.Setup(provider => provider.GetRandomSearchTerm(_context.Object)).Returns(It.IsAny<string>());
+
+            // Act
+            var result = await GetRandomTracks.RunAsync(_request.Object, _context.Object, _logger.Object, musicService.Object, searchTermProvider.Object) as BadRequestObjectResult;
+
+            // Assert
+            Assert.AreEqual("Please enter a valid count.", result.Value);
         }
     }
 }
